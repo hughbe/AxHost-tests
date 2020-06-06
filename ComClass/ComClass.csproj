@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <EnableComHosting>true</EnableComHosting>
+    <EnableRegFreeCom>true</EnableRegFreeCom>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>CS0649;$(NoWarn)</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\System.Windows.Forms.Primitives\**\*.cs" />
+  </ItemGroup>
+
+  <Target Name="ServerUsage_RegFree" AfterTargets="Build">
+    <ItemGroup>
+      <ServerOutput Include="$(OutputPath)*.dll" />
+      <ServerOutput Include="$(OutputPath)*.runtimeconfig.json" />
+      <ServerOutput Include="$(OutputPath)*.deps.json" />
+      <ServerOutput Include="$(OutputPath)*.manifest" />
+    </ItemGroup>
+
+    <!-- Deploy all required server outputs - .NET Core misses this -->
+    <Copy SourceFiles="@(ServerOutput)" DestinationFolder="../System.Windows.Forms.Tests/$(OutputPath)" />
+  </Target>
+
+  <Target Name="Clean_RegFree" AfterTargets="Clean">
+    <ItemGroup>
+      <ServerOutputToDelete Include="../COMClient/$(OutputPath)COMServer.*" />
+    </ItemGroup>
+
+    <!-- Cleanup deployed server outputs -->
+    <Delete Files="@(ServerOutputToDelete)" />
+  </Target>
+
+</Project>
